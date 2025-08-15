@@ -18,8 +18,7 @@ kubeconfig:
 
 .PHONY: ns
 ns:
-	kubectl apply -f kube/namespaces/cattle-system.yaml
-	kubectl apply -f kube/namespaces/dev.yaml
+	kubectl apply -k stacks/kube/namespaces
 
 .PHONY: helm-base
 helm-base:

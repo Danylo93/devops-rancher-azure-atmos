@@ -38,11 +38,11 @@ releases:
     needs: [ "argo-cd" ]
     values:
       - projects:
-          - name: dev
+          - name: {{ .Values.gitops.stage }}
             namespace: argocd
-            description: "AppProject DEV"
+            description: "AppProject {{ .Values.gitops.stage | upper }}"
             destinations:
-              - namespace: dev
+              - namespace: {{ .Values.gitops.stage }}
                 server: https://kubernetes.default.svc
             clusterResourceWhitelist:
               - group: '*'
@@ -53,16 +53,16 @@ releases:
             sourceRepos:
               - "{{ .Values.gitops.repo_url }}"
         applications:
-          - name: kafka-producer-dev
+          - name: kafka-producer-{{ .Values.gitops.stage }}
             namespace: argocd
-            project: dev
+            project: {{ .Values.gitops.stage }}
             source:
               repoURL: "{{ .Values.gitops.repo_url }}"
               targetRevision: "{{ .Values.gitops.target_revision }}"
-              path: "{{ .Values.gitops.path_root }}/apps/kafka-producer"
+              path: "{{ .Values.gitops.path_root }}/apps/kafka-producer/overlays/{{ .Values.gitops.stage }}"
             destination:
               server: https://kubernetes.default.svc
-              namespace: dev
+              namespace: {{ .Values.gitops.stage }}
             syncPolicy:
               automated:
                 prune: true
