@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://atmos.tools/schemas/atmos-manifest/1.0/atmos-manifest.json
 components:
   terraform:
-    base_path: "components/terraform"
+    base_path: "stacks/components/terraform"
   helmfile:
-    base_path: "components/helmfile"
+    base_path: "stacks/components/helmfile"
 
 stacks:
   base_path: "stacks"
@@ -12,6 +12,7 @@ stacks:
   excluded_paths:
     - "**/_defaults/**/*"
     - "components/**"          # ignora helm charts e terraform modules
+    - "stacks/components/**"   # ignora componentes dentro de stacks/
   name_pattern: "{region}/{stage}"
 
 cli:

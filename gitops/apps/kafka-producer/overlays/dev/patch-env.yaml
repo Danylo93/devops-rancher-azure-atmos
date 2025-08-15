@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-producer
+spec:
+  template:
+    spec:
+      containers:
+        - name: app
+          env:
+            - name: KAFKA_BOOTSTRAP
+              value: "kafka-dev-kafka-bootstrap.dev.svc:9092"

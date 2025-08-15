@@ -18,11 +18,11 @@ vars:
     bootstrapPassword: "Admin12345!"              # <<< ajuste
 
   gitops:
-    repo_url: "https://github.com/Danylo93/devops-rancher-azure-atmos.git" # <<< ajuste
-    target_revision: "main"
-    path_root: "gitops"
-    argocd:
-      hostname: "argocd-dev.127.0.0.1.nip.io"     # <<< ajuste
+      repo_url: "https://github.com/Danylo93/devops-rancher-azure-atmos.git" # <<< ajuste
+      target_revision: "main"
+      path_root: "gitops"
+      argocd:
+        hostname: "argocd-dev.127.0.0.1.nip.io"     # <<< ajuste
 
 components:
   terraform:
@@ -70,3 +70,4 @@ components:
           path_root: "{{ var.gitops.path_root }}"
           argocd:
             hostname: "{{ var.gitops.argocd.hostname }}"
+          stage: "{{ var.stage }}"

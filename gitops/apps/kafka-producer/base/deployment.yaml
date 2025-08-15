@@ -18,11 +18,11 @@ spec:
             - |
               echo "producer mock subindo..."; \
               while true; do echo "$(date) - producing to topic 'orders'"; sleep 10; done
-          env:
-            - name: KAFKA_BOOTSTRAP
-              value: "kafka-dev-kafka-bootstrap.dev.svc:9092"
-            - name: KAFKA_TOPIC
-              value: "orders"
-          resources:
-            limits: { cpu: "100m", memory: "128Mi" }
-            requests: { cpu: "50m", memory: "64Mi" }
+            env:
+              - name: KAFKA_BOOTSTRAP
+                value: REPLACE_ME
+              - name: KAFKA_TOPIC
+                value: "orders"
+            resources:
+              limits: { cpu: "100m", memory: "128Mi" }
+              requests: { cpu: "50m", memory: "64Mi" }
