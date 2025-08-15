@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-producer
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: kafka-producer }
+  template:
+    metadata:
+      labels: { app: kafka-producer }
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/banzaicloud/kafka:3.6.1 # placeholder leve para exemplo
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              echo "producer mock subindo..."; \
+              while true; do echo "$(date) - producing to topic 'orders'"; sleep 10; done
+          env:
+            - name: KAFKA_BOOTSTRAP
+              value: "kafka-dev-kafka-bootstrap.dev.svc:9092"
+            - name: KAFKA_TOPIC
+              value: "orders"
+          resources:
+            limits: { cpu: "100m", memory: "128Mi" }
+            requests: { cpu: "50m", memory: "64Mi" }

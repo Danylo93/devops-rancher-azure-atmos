@@ -1,0 +1,71 @@
+repositories:
+  - name: argo
+    url: https://argoproj.github.io/argo-helm
+
+releases:
+  - name: argo-cd
+    namespace: argocd
+    chart: argo/argo-cd
+    version: 7.5.2
+    createNamespace: true
+    values:
+      - configs:
+          params:
+            server.insecure: true
+        server:
+          extraArgs:
+            - --insecure
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            hosts: [ "{{ .Values.gitops.argocd.hostname }}" ]
+            tls:
+              - hosts: [ "{{ .Values.gitops.argocd.hostname }}" ]
+                secretName: argocd-tls
+        # Se tiver cert-manager + ClusterIssuer, habilite:
+        # server:
+        #   ingress:
+        #     annotations:
+        #       cert-manager.io/cluster-issuer: letsencrypt
+      - controller:
+          metrics:
+            enabled: true
+
+  - name: argocd-apps
+    namespace: argocd
+    chart: argo/argocd-apps
+    version: 2.0.0
+    needs: [ "argo-cd" ]
+    values:
+      - projects:
+          - name: dev
+            namespace: argocd
+            description: "AppProject DEV"
+            destinations:
+              - namespace: dev
+                server: https://kubernetes.default.svc
+            clusterResourceWhitelist:
+              - group: '*'
+                kind: '*'
+            namespaceResourceWhitelist:
+              - group: '*'
+                kind: '*'
+            sourceRepos:
+              - "{{ .Values.gitops.repo_url }}"
+        applications:
+          - name: kafka-producer-dev
+            namespace: argocd
+            project: dev
+            source:
+              repoURL: "{{ .Values.gitops.repo_url }}"
+              targetRevision: "{{ .Values.gitops.target_revision }}"
+              path: "{{ .Values.gitops.path_root }}/apps/kafka-producer"
+            destination:
+              server: https://kubernetes.default.svc
+              namespace: dev
+            syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
+              syncOptions:
+                - CreateNamespace=false

@@ -1,0 +1,33 @@
+repositories:
+  - name: strimzi
+    url: https://strimzi.io/charts/
+
+releases:
+  - name: strimzi-kafka-operator
+    namespace: dev
+    chart: strimzi/strimzi-kafka-operator
+    version: 0.41.0       # <<< ajuste se quiser outra
+    createNamespace: false
+    values:
+      - watchAnyNamespace: false
+        watchNamespaces:
+          - dev
+
+  # Chart simples só para "empacotar" os CRDs de Kafka que queremos criar
+  - name: kafka-cr
+    namespace: dev
+    chart: ../charts/kafka-cr
+    version: 0.1.0
+    values:
+      - kafka:
+          name: "kafka-dev"
+          replicas: 3
+          storage:
+            size: 20Gi
+          kafkaVersion: "3.7.0"
+        topic:
+          name: "orders"
+          partitions: 3
+          replicas: 3
+        user:
+          name: "app-producer"

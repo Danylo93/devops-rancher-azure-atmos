@@ -1,0 +1,14 @@
+kafka:
+  name: kafka-dev
+  replicas: 3
+  storage:
+    size: 20Gi
+  kafkaVersion: "3.7.0"
+
+topic:
+  name: orders
+  partitions: 3
+  replicas: 3
+
+user:
+  name: app-producer
