@@ -1,0 +1,10 @@
+rg_name           = "rg-platform-dev"
+location          = "eastus"
+vnet_name         = "vnet-dev"
+address_space     = "10.0.0.0/16"
+aks_subnet_name   = "snet-aks"
+aks_subnet_prefix = "10.0.0.0/24"
+cluster_name      = "aks-platform-dev"
+kubernetes_version = "1.27.7"
+node_vm_size      = "Standard_DS2_v2"
+node_count        = 1
