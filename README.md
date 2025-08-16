@@ -1,23 +1,13 @@
-# DevOps Rancher + Azure + Atmos + Kafka (Strimzi)
+# DevOps Rancher + Azure + Terraform
 
 ## Pré-requisitos
-- Azure CLI (`az`), Terraform (>=1.6), Atmos (>=1.0), Helmfile, kubectl
+- Azure CLI (`az`)
+- Terraform (>=1.6)
 - Permissão na Subscription
-- DNS/host para Rancher (ou use nip.io)
 
-## Passo a passo (DEV)
-1. Ajuste `stacks/catalog/_defaults.yaml` (tenant, subscription, domínio Rancher).
-2. `make login`
-3. `make up-dev`  (RG, VNet, AKS + addons + Strimzi + Kafka)
-4. `make kubeconfig`
-5. `make ns` (aplica namespaces via Kustomize)
-6. Acessar Rancher via `https://<hostname>` e logar com `bootstrapPassword`.
+## Como usar
+1. Ajuste as variáveis em `terraform/terraform.tfvars` (consulte o arquivo `terraform.tfvars.example`).
+2. Acesse o diretório `terraform` e inicialize: `terraform init`.
+3. Aplique a infraestrutura: `terraform apply -var-file=terraform.tfvars`.
 
-## Verificando Kafka
-```bash
-kubectl -n dev get pods
-kubectl -n dev get kafka,kafkatopic,kafkauser
-```
-
-## Estrutura GitOps
-- Aplicações em `gitops/apps` utilizam Kustomize (`base` + `overlays/{dev,hml,prod}`) e são sincronizadas pelo Argo CD.
+Os módulos provisionam o grupo de recursos, rede virtual e cluster AKS na Azure.

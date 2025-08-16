@@ -1,0 +1,10 @@
+variable "rg_name" { type = string }
+variable "location" { type = string }
+variable "vnet_name" { type = string }
+variable "address_space" { type = string }
+variable "aks_subnet_name" { type = string }
+variable "aks_subnet_prefix" { type = string }
+variable "cluster_name" { type = string }
+variable "kubernetes_version" { type = string }
+variable "node_vm_size" { type = string }
+variable "node_count" { type = number }
