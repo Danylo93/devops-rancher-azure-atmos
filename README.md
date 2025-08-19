@@ -1,28 +1,13 @@
-# DevOps Rancher + Azure + Atmos + Kafka (Strimzi)
+# DevOps Rancher + Azure
 
 ## Pré-requisitos
-- Azure CLI (`az`), Terraform (>=1.6), Atmos (>=1.0), Helmfile, kubectl
+- Azure CLI (`az`) e Terraform (>=1.6)
 - Permissão na Subscription
-- DNS/host para Rancher (ou use nip.io)
+- Domínio `quantum-flow.tech` apontando para o IP público
 
 ## Passo a passo (DEV)
-1. Ajuste `stacks/catalog/_defaults.yaml` (tenant, subscription, domínio Rancher) e `ansible/group_vars/all.yml` (kubeconfig, domínio, repositório GitOps). No WSL, por exemplo, use `kubeconfig: "/home/danylo/.kube/config"`.
+1. Ajuste `infra/terraform/live/dev/dev.tfvars` com sua subscription, tenant e chave SSH.
 2. `make login`
-3. `make up-dev`  (RG, VNet, AKS + addons + Strimzi + Kafka)
-4. `make kubeconfig`
-5. `make ns` (aplica namespaces via Kustomize)
-6. Instale dependências e faça o bootstrap de ingress, cert-manager, Rancher e Argo CD:
-   ```bash
-   ansible-galaxy collection install -r ansible/requirements.yml
-   make ansible-all
-   ```
-7. Acessar Rancher via `https://<hostname>` e logar com `bootstrapPassword`.
-
-## Verificando Kafka
-```bash
-kubectl -n dev get pods
-kubectl -n dev get kafka,kafkatopic,kafkauser
-```
-
-## Estrutura GitOps
-- Aplicações em `gitops/apps` utilizam Kustomize (`base` + `overlays/{dev,hml,prod}`) e são sincronizadas pelo Argo CD.
+3. `make up-dev` (cria Resource Group, VNet e VM)
+4. Aponte o DNS de `quantum-flow.tech` para o IP público exibido na saída.
+5. Acesse a VM e instale o Rancher na versão latest.
