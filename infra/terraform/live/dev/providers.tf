@@ -14,6 +14,6 @@ variable "tenant_id" {}
 
 provider "azurerm" {
   features {}
-  subscription_id = "b171271a-b25e-45aa-ad46-f48535580096" # ID da sua subscription
-  tenant_id       = "b5306433-1086-417b-83c5-12287dd97f69" # ID do seu tenant
+  subscription_id = var.subscription_id
+  tenant_id       = var.tenant_id
 }

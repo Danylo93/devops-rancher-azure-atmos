@@ -1,14 +1,25 @@
-variable "acr_name" {
-  description = "Nome do Azure Container Registry (único global, min 5 e max 50)."
-  type        = string
-}
-
-variable "rg_name" {
-  description = "Resource Group onde o ACR será criado."
+variable "prefix" {
+  description = "Prefixo para os recursos."
   type        = string
 }
 
 variable "location" {
   description = "Região da Azure (ex: eastus2)."
+  type        = string
+}
+
+variable "vm_size" {
+  description = "SKU da VM."
+  type        = string
+  default     = "Standard_B2s"
+}
+
+variable "admin_username" {
+  description = "Usuário administrador da VM."
+  type        = string
+}
+
+variable "admin_ssh_key" {
+  description = "Chave pública SSH para acesso."
   type        = string
 }

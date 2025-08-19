@@ -9,21 +9,21 @@ resource "azurerm_virtual_network" "vnet" {
   address_space       = [var.vnet_cidr]
 }
 
-resource "azurerm_subnet" "aks" {
-  name                 = "snet-aks"
+resource "azurerm_subnet" "vm" {
+  name                 = "snet-vm"
   resource_group_name  = var.rg_name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = [var.aks_cidr]
+  address_prefixes     = [var.subnet_cidr]
 }
 
-resource "azurerm_public_ip" "ingress" {
-  name                = "${var.prefix}-ingress-pip"
+resource "azurerm_public_ip" "vm" {
+  name                = "${var.prefix}-vm-pip"
   location            = var.location
   resource_group_name = var.rg_name
   allocation_method   = "Static"
   sku                 = "Standard"
 }
 
-output "subnet_aks_id" { value = azurerm_subnet.aks.id }
-output "ingress_public_ip_id" { value = azurerm_public_ip.ingress.id }
-output "ingress_public_ip" { value = azurerm_public_ip.ingress.ip_address }
+output "subnet_id" { value = azurerm_subnet.vm.id }
+output "public_ip_id" { value = azurerm_public_ip.vm.id }
+output "public_ip" { value = azurerm_public_ip.vm.ip_address }
