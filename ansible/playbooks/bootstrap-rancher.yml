@@ -30,8 +30,8 @@
           ingress:
             tls:
               source: secret # será preenchido pelo cert-manager automaticamente via anotação
-          global:
-            cattle:
-              systemDefaultRegistry: ""
-          auditLog:
-            level: 0
+            global:
+              cattle:
+                systemDefaultRegistry: ""
+            auditLog:
+              level: 0

@@ -1,8 +1,5 @@
 - hosts: local
   vars_files: ["../group_vars/all.yml"]
-  vars:
-    gitops_repo_url: "https://github.com/sua-org/seu-repo.git" # ajuste
-    gitops_branch: "main"
   tasks:
     - name: Add argo helm repo
       kubernetes.core.helm_repository:
