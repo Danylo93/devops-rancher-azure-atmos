@@ -68,5 +68,6 @@
         chart_ref: jetstack/cert-manager
         release_namespace: "{{ namespaces.certmgr }}"
         create_namespace: false
-        values:
-          installCRDs: true
+      values:
+        installCRDs: true
+
