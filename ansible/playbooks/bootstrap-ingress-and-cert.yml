@@ -1,8 +1,6 @@
 ---
 - hosts: local
-  vars_files:
-    - "../group_vars/all.yml"
-
+  vars_files: ["../group_vars/all.yml"]
   tasks:
     - name: Add helm repo ingress-nginx
       kubernetes.core.helm_repository:
@@ -19,19 +17,19 @@
           metadata:
             name: "{{ namespaces.ingress }}"
 
-    # --------- Aqui simplificamos os cálculos sem Jinja no mapa ---------
+    # Calcula annotations e LB IP só se ingress_ip foi informado
     - name: Defaults para annotations e LB IP
       set_fact:
-        ingress_annotations: {}
-        ingress_lb_ip: "{{ omit }}"
-
-    - name: Define annotations e LB IP se ingress_ip foi informado
-      set_fact:
-        ingress_annotations:
-          service.beta.kubernetes.io/azure-load-balancer-resource-group: "{{ rg_name }}"
-        ingress_lb_ip: "{{ ingress_ip }}"
-      when: (ingress_ip | default('') | length) > 0
-    # --------------------------------------------------------------------
+        ingress_annotations: >-
+          {{
+            ({'service.beta.kubernetes.io/azure-load-balancer-resource-group': rg_name})
+            if (ingress_ip | default('') | length) > 0 else {}
+          }}
+        ingress_lb_ip: >-
+          {{
+            (ingress_ip)
+            if (ingress_ip | default('') | length) > 0 else omit
+          }}
 
     - name: Install ingress-nginx
       kubernetes.core.helm:
@@ -44,7 +42,7 @@
           controller:
             service:
               annotations: "{{ ingress_annotations }}"
-              loadBalancerIP: "{{ ingress_lb_ip }}"
+              loadBalancerIP: "{{ ingress_lb_ip | default(omit) }}"
 
     - name: Add helm repo jetstack
       kubernetes.core.helm_repository:
@@ -68,6 +66,5 @@
         chart_ref: jetstack/cert-manager
         release_namespace: "{{ namespaces.certmgr }}"
         create_namespace: false
-      values:
-        installCRDs: true
-
+        values:
+          installCRDs: true

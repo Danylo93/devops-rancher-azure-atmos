@@ -1,9 +1,10 @@
 kubeconfig: "/home/danylo/.kube/config"
 rg_name: "myco-dev-rg"
-base_domain: ""           # ex: dev.example.com ou 20.200.10.5.sslip.io
-email_le: "devops@example.com"
+base_domain: "20.122.218.157.sslip.io"
+
+email_le: "danylo.oliveira73@gmail.com"
 rancher_admin_password: "ChangeMe!123"   # altere após login
-gitops_repo_url: "https://github.com/sua-org/seu-repo.git"  # ajuste para seu repositório GitOps
+gitops_repo_url: "https://github.com/Danylo93/gitops.git"  # ajuste para seu repositório GitOps
 gitops_branch: "main"
 namespaces:
   ingress: ingress-nginx
