@@ -1,0 +1,18 @@
+image:
+  repository: <acr-login-server>/whoami
+  tag: "latest"
+replicaCount: 1
+service:
+  port: 80
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: whoami.{{ .Values.baseDomain | default "example.com" }}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts: ["whoami.{{ .Values.baseDomain | default "example.com" }}"]
+      secretName: whoami-tls
+baseDomain: ""

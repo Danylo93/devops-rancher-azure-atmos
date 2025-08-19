@@ -1,40 +1,27 @@
-# Requer: atmos, terraform, helmfile, az, kubelogin, kubectl
+.PHONY: tf-init tf-apply kube ansible-ingress ansible-issuers ansible-rancher ansible-argocd
 
-STACK ?= ue2/dev
-AKS_RG ?= rg-platform-dev
-AKS_NAME ?= aks-platform-dev
+ENV ?= dev
+TF_DIR=infra/terraform/live/$(ENV)
 
-.PHONY: login
-login:
-	az login
+tf-init:
+	cd $(TF_DIR) && terraform init
 
-.PHONY: up-dev
-up-dev:
-	atmos run workflow up-dev
+tf-apply:
+	cd $(TF_DIR) && terraform apply -var-file=$(ENV).tfvars -auto-approve
 
-.PHONY: kubeconfig
-kubeconfig:
-	az aks get-credentials -g $(AKS_RG) -n $(AKS_NAME) --overwrite-existing
+kube:
+	@RG=$$(terraform -chdir=$(TF_DIR) output -raw rg_name 2>/dev/null || echo "$(ENV)-rg"); \
+	AKS=$$(terraform -chdir=$(TF_DIR) output -raw aks_name 2>/dev/null || echo "$(ENV)-aks"); \
+	./scripts/get_kubeconfig.sh $$RG $$AKS
 
-.PHONY: ns
-ns:
-	kubectl apply -k stacks/kube/namespaces
+ansible-ingress:
+	ansible-playbook -i ansible/inventory.ini ansible/playbooks/bootstrap-ingress-and-cert.yml
 
-.PHONY: helm-base
-helm-base:
-	atmos helmfile apply base -s $(STACK)
+ansible-issuers:
+	ansible-playbook -i ansible/inventory.ini ansible/playbooks/issuers-letsencrypt.yml
 
-.PHONY: helm-dev
-helm-dev:
-	atmos helmfile apply dev -s $(STACK)
+ansible-rancher:
+	ansible-playbook -i ansible/inventory.ini ansible/playbooks/bootstrap-rancher.yml
 
-.PHONY: status
-status:
-	kubectl -n dev get pods
-	kubectl -n cattle-system get pods
-	kubectl -n ingress-nginx get pods
-	kubectl -n cert-manager get pods
-
-.PHONY: helm-gitops
-helm-gitops:
-	atmos helmfile apply gitops -s $(STACK)
+ansible-argocd:
+	ansible-playbook -i ansible/inventory.ini ansible/playbooks/bootstrap-argocd.yml

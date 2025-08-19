@@ -1,0 +1,4 @@
+baseDomain: "{{ replace (env "BASE_DOMAIN") "\n" "" }}"
+image:
+  repository: <acr-login-server>/whoami
+  tag: "dev-0.1.0"

@@ -1,0 +1,11 @@
+kubeconfig: "/home/danylo/.kube/config"
+rg_name: "myco-dev-rg"
+base_domain: ""           # ex: dev.example.com ou 20.200.10.5.sslip.io
+email_le: "devops@example.com"
+rancher_admin_password: "ChangeMe!123"   # altere após login
+namespaces:
+  ingress: ingress-nginx
+  certmgr: cert-manager
+  rancher: cattle-system
+  argocd: argocd
+ingress_ip: "" # se desejar fixar a PublicIP criada via TF, preencha e será anotada no Service do ingress

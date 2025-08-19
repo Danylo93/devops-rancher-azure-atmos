@@ -1,0 +1,59 @@
+trigger:
+  paths:
+    include:
+      - apps/*
+      - gitops/apps/*
+
+variables:
+  - group: DEVOPS_VARS   # crie este Variable Group com segredos
+  - name: IMAGE_NAME
+    value: whoami
+  - name: ACR_SERVICE_CONNECTION
+    value: sc-acr          # nome do service connection do tipo Docker Registry (ACR)
+  - name: GITOPS_REPO
+    value: https://github.com/sua-org/seu-repo.git
+  - name: GITOPS_BRANCH
+    value: main
+
+stages:
+  - stage: BuildAndPush
+    displayName: Build & Push ACR
+    jobs:
+      - job: docker
+        pool: { vmImage: ubuntu-latest }
+        steps:
+          - checkout: self
+          - task: Docker@2
+            displayName: Build & Push
+            inputs:
+              containerRegistry: $(ACR_SERVICE_CONNECTION)
+              repository: $(IMAGE_NAME)
+              command: buildAndPush
+              Dockerfile: apps/whoami/Dockerfile
+              buildContext: apps/whoami
+              tags: |
+                $(Build.SourceBranchName)-$(Build.BuildId)
+                latest
+          - script: |
+              echo "##vso[task.setvariable variable=IMAGE_TAG]$(Build.SourceBranchName)-$(Build.BuildId)"
+            displayName: Set IMAGE_TAG
+
+  - stage: UpdateGitOps
+    dependsOn: BuildAndPush
+    displayName: Bump tag no GitOps
+    jobs:
+      - job: bump
+        pool: { vmImage: ubuntu-latest }
+        steps:
+          - checkout: self
+          - script: |
+              git config --global user.email "$(GITOPS_EMAIL)"
+              git config --global user.name  "$(GITOPS_USER)"
+              git clone https://$(GITOPS_USER):$(GITOPS_PAT)@${GITOPS_REPO#https://} gitops-repo
+              cd gitops-repo
+              sed -i "s/tag: \".*\"/tag: \"$(IMAGE_TAG)\"/" gitops/apps/whoami/values-dev.yaml
+              git add gitops/apps/whoami/values-dev.yaml
+              git commit -m "chore(gitops): bump whoami to $(IMAGE_TAG)"
+              git push origin $(GITOPS_BRANCH)
+            env:
+              GITOPS_REPO: $(GITOPS_REPO)

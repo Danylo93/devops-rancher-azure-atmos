@@ -1,0 +1,65 @@
+- hosts: local
+  vars_files: ["../group_vars/all.yml"]
+  vars:
+    gitops_repo_url: "https://github.com/sua-org/seu-repo.git" # ajuste
+    gitops_branch: "main"
+  tasks:
+    - name: Add argo helm repo
+      kubernetes.core.helm_repository:
+        name: argo
+        repo_url: https://argoproj.github.io/argo-helm
+
+    - name: Create namespace argocd
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: "{{ namespaces.argocd }}"
+
+    - name: Install Argo CD
+      kubernetes.core.helm:
+        kubeconfig: "{{ kubeconfig }}"
+        name: argo-cd
+        chart_ref: argo/argo-cd
+        release_namespace: "{{ namespaces.argocd }}"
+        create_namespace: false
+        values:
+          configs:
+            params:
+              server.insecure: true
+          server:
+            ingress:
+              enabled: true
+              ingressClassName: nginx
+              hosts: ["argocd.{{ base_domain }}"]
+              tls:
+                - hosts: ["argocd.{{ base_domain }}"]
+                  secretName: argocd-tls
+
+    - name: App of Apps (clusters/dev)
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        definition:
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: root-dev
+            namespace: "{{ namespaces.argocd }}"
+          spec:
+            project: default
+            source:
+              repoURL: "{{ gitops_repo_url }}"
+              targetRevision: "{{ gitops_branch }}"
+              path: gitops/clusters/dev
+            destination:
+              server: https://kubernetes.default.svc
+              namespace: "{{ namespaces.argocd }}"
+            syncPolicy:
+              automated:
+                prune: true
+                selfHeal: true
+              syncOptions:
+                - CreateNamespace=true

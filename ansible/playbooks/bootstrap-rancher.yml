@@ -1,0 +1,37 @@
+- hosts: local
+  vars_files: ["../group_vars/all.yml"]
+  tasks:
+    - name: Add helm repo rancher
+      kubernetes.core.helm_repository:
+        name: rancher-stable
+        repo_url: https://releases.rancher.com/server-charts/stable
+
+    - name: Create namespace rancher
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: "{{ namespaces.rancher }}"
+
+    - name: Install Rancher (TLS via cert-manager)
+      kubernetes.core.helm:
+        kubeconfig: "{{ kubeconfig }}"
+        name: rancher
+        chart_ref: rancher-stable/rancher
+        release_namespace: "{{ namespaces.rancher }}"
+        create_namespace: false
+        values:
+          hostname: "rancher.{{ base_domain }}"
+          replicas: 2
+          bootstrapPassword: "{{ rancher_admin_password }}"
+          ingress:
+            tls:
+              source: secret # será preenchido pelo cert-manager automaticamente via anotação
+          global:
+            cattle:
+              systemDefaultRegistry: ""
+          auditLog:
+            level: 0
